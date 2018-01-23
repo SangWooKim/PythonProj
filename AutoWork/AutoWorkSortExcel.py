@@ -1,10 +1,8 @@
 #-*- coding: utf-8 -*-
 
-import configparser
+import configparser, os, re, datetime, time
 import logging.handlers
-import os
-import AutoPNRLib
-import openpyxl
+from AutoWorkLib import *
 
 #로그 정의
 logdir = '{0}\\log'.format(os.getcwd())
@@ -29,7 +27,7 @@ logger.setLevel(logging.DEBUG)
 '''
 if __name__ == "__main__":
     logger.info('=======================================')
-    logger.info('Sale END excel')
+    logger.info('Autowork sort excel')
     logger.info('=======================================')
 
     config = configparser.ConfigParser()
@@ -37,35 +35,60 @@ if __name__ == "__main__":
         config.read('.\config.txt')
 
     # 설정 파일 확인
-    file_path = 'C:\\Users\\swkim\\Documents\\카카오톡 받은 파일\\SomSaleEndListExcel_test.xlsx'
+    file_path = 'C:\\Users\\swkim\\Documents\\카카오톡 받은 파일\\SomSaleEndListExcel.xlsx'
     start_row = 7
-    column = 2
+    column = 5
     sheet_name = 'Sheet'
 
+    #엑셀 파일에서 주어진 컬럼의 값을 모두 읽는다.
+    basicfunction = AutoWorkLibExcel()
+    column_data_list = basicfunction.LoadColumn(file_path, sheet_name, column, start_row)
 
 
-    #엑셀 파일에서 PNR 코드만 읽어서 리스트를 만들어 준다.
-    basicfunction = AutoPNRLib.AutoPNRLib()
-    option_list = basicfunction.LoadXLSXData(file_path, sheet_name, column, start_row)
 
-    option_list.sort()
-    #print(option_list)
+    # "날짜"를 구분자로해서 나눠주고 날짜 부분을 맨앞으로 옮겨준다.
+    # "날짜"로 구분된 토큰이 1/1 이라면 01/01 로 변경한다.
+    sorted_list = []
+    month = 1
+    day =1
+    hour = 0
+    min = 0
+    for idx, column_data in enumerate(column_data_list):
+        date_string = column_data.split('날짜')[1]
+
+        print(date_string)
+
+        p_date = re.compile('[0-9]{1,2}/[0-9]{1,2} ')
+        match_date = p_date.search(date_string)
+        if match_date :
+            month = int(match_date.group().split('/')[0])
+            day = int(match_date.group().split('/')[1])
+
+
+        p_time = re.compile('[0-9]{2}:[0-9]{2}')
+        match_time = p_time.search(date_string)
+        if match_time:
+            hour = int(match_time.group().split(':')[0])
+            min = int(match_time.group().split(':')[1])
+
+        sort_key = datetime.datetime(2018, month, day, hour, min)
+        sorted_list.append( (str(sort_key), idx + start_row) )
+
+    sorted_list.sort()
+    print(sorted_list)
 
 
     #리스트 확인
     #print(len(pnr_code_list))
     #print(option_list)
-
-
     wb = openpyxl.load_workbook(file_path)
     ws_result = wb.create_sheet('result')
     ws_data = wb[sheet_name]
 
-    col_range = 'CDEFGHIJKLMNOPQRSTUVW'
-
+    col_range = 'FGHIJKLMNOPQRSTUVW'
 
     # A ~ W 까지
-    for idx, option in enumerate(option_list) :
+    for idx, option in enumerate(sorted_list) :
         row_index = option[1]
         for idx_col, arg in enumerate(col_range):
             if idx_col == 0:

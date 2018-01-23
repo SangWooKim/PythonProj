@@ -1,0 +1,17 @@
+[AUTOPNR]
+col= P
+row =5
+file_path=D:\Github\PythonProj\AutoPNR\pnrData.xlsx
+
+[BUTTON_POS]
+input_box= -1135,100
+flight_info_box= -859, 154
+result_row = -934,156
+delete_all= -53, 291
+add_button= -58, 158
+type_combo= -786,288
+type_combo_other= -802,336
+last_name = -813, 341
+first_name = -804, 362
+phone_home =-435,410
+save_button=-58,274
