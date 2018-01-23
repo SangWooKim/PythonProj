@@ -24,6 +24,24 @@ class AutoPNRLib(object):
         wb.close()
         return pnr_code_list
 
+    def LoadXLSXData(self, file_path, sheet_name, column, row):
+        pnr_code_list = []
+        wb = openpyxl.load_workbook(file_path)
+        ws = wb[sheet_name]
+
+        for r in ws.rows:
+            row_index = r[0].row
+            if row_index < int(row):
+                continue
+
+            column_data = r[column].value
+            column_data_list = column_data.split('날짜')
+
+            pnr_code_list.append((column_data_list[1], row_index))
+
+        wb.close()
+        return pnr_code_list
+
     def inputText(self, text):
        for arg in text:
 

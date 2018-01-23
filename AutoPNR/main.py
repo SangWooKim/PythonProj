@@ -166,10 +166,3 @@ if __name__ == "__main__":
         time.sleep(2)
         basicfunction.inputKey('enter')
         break
-
-
-
-
-
-
-
