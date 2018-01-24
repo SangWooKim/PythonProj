@@ -35,7 +35,7 @@ if __name__ == "__main__":
         config.read('.\config.txt')
 
     # 설정 파일 확인
-    file_path = 'C:\\Users\\swkim\\Documents\\카카오톡 받은 파일\\SomSaleEndListExcel.xlsx'
+    file_path = 'E:\\UserData\\insoft\\Documents\\카카오톡 받은 파일\\SomSaleEndListExcel.xlsx'
     start_row = 7
     column = 5
     sheet_name = 'Sheet'
@@ -92,8 +92,8 @@ if __name__ == "__main__":
         row_index = option[1]
         for idx_col, arg in enumerate(col_range):
             if idx_col == 0:
-                temp_list = ws_data[arg + str(row_index)].value.split('구간')[1].split('시간')
-                ws_result.cell(row=idx + start_row, column=1, value='구간' + temp_list[0])
+                temp = ws_data[arg + str(row_index)].value.split('구간')[1]
+                ws_result.cell(row=idx + start_row, column=1, value='구간' + temp)
             ws_result.cell(row=idx + start_row, column=idx_col + 2, value=ws_data[arg + str(row_index)].value)
 
     wb.save(file_path)
