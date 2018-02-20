@@ -32,7 +32,7 @@ class AutoWorkLibExcel(object):
 
 class AutoworkLibKeyboardMouse(object):
     def __init__(self):
-        self.mylogger = logging.getloger('auto_work_log')
+        #self.mylogger = logging.getloger('auto_work_log')
         return
 
     '''주어진 text를 한글자씩 키보드 이벤트를 발생한다.'''
@@ -40,7 +40,6 @@ class AutoworkLibKeyboardMouse(object):
         for arg in text:
             win32api.keybd_event(VK_CODE[arg], 0, 0, 0)
             time.sleep(0.01)
-
             win32api.keybd_event(VK_CODE[arg], 0, win32con.KEYEVENTF_KEYUP, 0)
         return
 
