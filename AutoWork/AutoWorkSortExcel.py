@@ -35,7 +35,7 @@ if __name__ == "__main__":
         config.read('.\config.txt')
 
     # 설정 파일 확인
-    file_path = 'E:\\UserData\\insoft\\Documents\\카카오톡 받은 파일\\SomSaleEndListExcel.xlsx'
+    file_path = 'D:\\GitHub\\PythonProj\\AutoWork\\SomSaleEndListExcel.xlsx'
     start_row = 7
     column = 5
     sheet_name = 'Sheet'
@@ -53,16 +53,18 @@ if __name__ == "__main__":
     day =1
     hour = 0
     min = 0
+    parse_token = ['날짜선택', '구간선택', '시간선택']
     for idx, column_data in enumerate(column_data_list):
-        date_string = column_data.split('날짜')[1]
+        date_string = column_data.split(parse_token[0])[1]
 
         print(date_string)
 
-        p_date = re.compile('[0-9]{1,2}/[0-9]{1,2} ')
+        p_date = re.compile('[0-9]{1,2}월 [0-9]{1,2}일')
         match_date = p_date.search(date_string)
         if match_date :
-            month = int(match_date.group().split('/')[0])
-            day = int(match_date.group().split('/')[1])
+            cur_date = match_date.group().replace('월', '').replace('일', '')
+            month = int(cur_date.split(' ')[0])
+            day = int(cur_date.split(' ')[1])
 
 
         p_time = re.compile('[0-9]{2}:[0-9]{2}')
@@ -75,26 +77,30 @@ if __name__ == "__main__":
         sorted_list.append( (str(sort_key), idx + start_row) )
 
     sorted_list.sort()
-    print(sorted_list)
 
-
-    #리스트 확인
-    #print(len(pnr_code_list))
-    #print(option_list)
     wb = openpyxl.load_workbook(file_path)
     ws_result = wb.create_sheet('result')
     ws_data = wb[sheet_name]
 
-    col_range = 'FGHIJKLMNOPQRSTUVW'
+    col_range = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 
-    # A ~ W 까지
+    #원본 데이타를 복사해줌
     for idx, option in enumerate(sorted_list) :
         row_index = option[1]
         for idx_col, arg in enumerate(col_range):
-            if idx_col == 0:
-                temp = ws_data[arg + str(row_index)].value.split('구간')[1]
-                ws_result.cell(row=idx + start_row, column=1, value='구간' + temp)
-            ws_result.cell(row=idx + start_row, column=idx_col + 2, value=ws_data[arg + str(row_index)].value)
+            ws_result.cell(row=idx + start_row, column=idx_col + 1, value=ws_data[arg + str(row_index)].value)
+
+    #ABC컬럼에 날짜, 구간, 시간을 넣어줌
+    for idx, r in enumerate(ws_result.rows):
+        str_option = r[column].value
+        if str_option :
+            str_option = str_option.split(parse_token[1])[1]
+            str_option = str_option.replace(parse_token[0], '').replace(parse_token[2], '')
+            date_list = str_option.split(',')
+            ws_result.cell(row=idx + 1, column=1, value=date_list[0].replace(':', ''))
+            ws_result.cell(row=idx + 1, column=2, value=date_list[1].replace(':', ''))
+            ws_result.cell(row=idx + 1, column=3, value=date_list[2])
+
 
     wb.save(file_path)
     wb.close()
