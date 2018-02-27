@@ -46,8 +46,8 @@ if __name__ == "__main__":
         config.read('.\config.txt')
 
     # 설정 파일 확인
-    file_path = config.get('AUTOPNR', 'file_path')
-    start_row = 4
+    file_path = "D:\\Github\\PythonProj\\AutoWork\\pnr1.xlsx"
+    start_row = 3
     column_index = 3
 
 
@@ -104,7 +104,7 @@ if __name__ == "__main__":
     full_count = len(pnr_code_list)
     print(pnr_code_list)
 
-    start_pnr = 'XYUCND'
+    start_pnr = 'EYESXQ'
     find_start = False
 
     for idx, pnrcode in enumerate(pnr_code_list) :
@@ -118,9 +118,9 @@ if __name__ == "__main__":
         print("work ==" + pnrcode + " : " + str(idx)  + '/' + str(full_count) )
         #타이틀 클릭 후 초기화 화면에서 PNR 코드 입력
         keyAndMouse.leftClick((-836, 9))
-        time.sleep(5)
+        time.sleep( 7 )
         keyAndMouse.inputKey('F10')
-        time.sleep( 5 )
+        time.sleep( 7 )
         keyAndMouse.leftClick(control_pos_tuple[INDEX_INPUT])
         keyAndMouse.inputText(pnrcode)
         keyAndMouse.inputKey('enter')
@@ -194,13 +194,13 @@ if __name__ == "__main__":
         keyAndMouse.inputKey('F8')
         time.sleep(1)
         keyAndMouse.inputKey('enter')
-        time.sleep(10)
+        time.sleep(8)
         
         #이름 입력
         keyAndMouse.leftClick((-720, 492))
         keyAndMouse.inputText('V')
         keyAndMouse.inputKey('enter')
-        time.sleep(5)
+        time.sleep( 7 )
 
     print ("FINISH")
 
