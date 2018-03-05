@@ -2,7 +2,9 @@
 
 import configparser
 import os
-from AutoWorkLib import *
+import logging, time
+import pyperclip
+from AutoWorkLib import AutoworkLibKeyboardMouse, AutoWorkLibExcel
 
 
 
@@ -44,12 +46,11 @@ if __name__ == "__main__":
         config.read('.\config.txt')
 
     # 설정 파일 확인
-    file_path = config.get('AUTOPNR', 'file_path')
-    start_row = config.get('AUTOPNR', 'row')
-    column=config.get('AUTOPNR', 'col')
-    column_index = ord(column.upper()) - ord('A') - 1
+    file_path = "D:\\Github\\PythonProj\\AutoWork\\pnr1.xlsx"
+    start_row = 3
+    column_index = 3
 
-    logger.info('file path = ' + file_path + 'start row = ' + start_row + 'start column = ' + column)
+
 
     #설정 파일에서 버튼 위치를 얻는다.
     control_pos_tuple = ()
@@ -95,73 +96,112 @@ if __name__ == "__main__":
 
     #엑셀 파일에서 PNR 코드만 읽어서 리스트를 만들어 준다.
     basicfunction = AutoWorkLibExcel()
-    pnr_code_list = basicfunction.LoadColumn(file_path, 'Sheet', column_index, start_row)
+    pnr_code_list = basicfunction.LoadColumn(file_path, 'Sheet1', column_index, start_row)
+
+    keyAndMouse = AutoworkLibKeyboardMouse()
 
     #리스트 확인
-    #print(len(pnr_code_list))
-    #print(pnr_code_list)
+    full_count = len(pnr_code_list)
+    print(pnr_code_list)
 
-    for pnrcode in pnr_code_list :
+    start_pnr = 'EYESXQ'
+    find_start = False
 
+    for idx, pnrcode in enumerate(pnr_code_list) :
+
+        if not find_start:
+            if start_pnr != pnrcode :
+                continue
+            else:
+                find_start = True
+
+        print("work ==" + pnrcode + " : " + str(idx)  + '/' + str(full_count) )
         #타이틀 클릭 후 초기화 화면에서 PNR 코드 입력
-        basicfunction.leftClick((-836, 9))
-        basicfunction.inputKey('F10')
-        time.sleep(SLEEP_TIME)
-        basicfunction.leftClick(control_pos_tuple[INDEX_INPUT])
-        basicfunction.inputText(pnrcode)
-        basicfunction.inputKey('enter')
+        keyAndMouse.leftClick((-836, 9))
+        time.sleep( 7 )
+        keyAndMouse.inputKey('F10')
+        time.sleep( 7 )
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_INPUT])
+        keyAndMouse.inputText(pnrcode)
+        keyAndMouse.inputKey('enter')
+
+        ''' 조회 완료를 대기 한다.  '''
+        while True:
+            time.sleep(2)
+            keyAndMouse.doubleClick((-1210, 134))
+            keyAndMouse.holdKey('left_control')
+            keyAndMouse.inputKey('C')
+            keyAndMouse.releaseKey('left_control')
+            if pnrcode == pyperclip.paste():
+                pyperclip.copy('')
+                break
+
+
 
         #조회 대기 후 결과 로우 더블클릭
-        time.sleep(SLEEP_TIME)
-        basicfunction.doubleClick(control_pos_tuple[INDEX_RESULT_ROW])
+        keyAndMouse.doubleClick(control_pos_tuple[INDEX_RESULT_ROW])
 
         #delete all 버튼
         time.sleep(SLEEP_TIME)
-        basicfunction.leftClick(control_pos_tuple[INDEX_DELETE_ALL])
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_DELETE_ALL])
 
         #spacebar 입력
-        time.sleep(SLEEP_TIME)
-        basicfunction.inputKey('spacebar')
+        time.sleep(1)
+        keyAndMouse.inputKey('spacebar')
 
         #shift + F5
         time.sleep(SLEEP_TIME)
-        basicfunction.shiftinputKey('F5')
+        keyAndMouse.holdKey('left_shift')
+        keyAndMouse.inputKey('F5')
+        keyAndMouse.releaseKey('left_shift')
+
+
 
         #add 버튼클릭
         time.sleep(SLEEP_TIME)
-        basicfunction.leftClick(control_pos_tuple[INDEX_ADD_BUTTON])
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_ADD_BUTTON])
 
 
         #type에서 other 선택 후 클릭
-        time.sleep(SLEEP_TIME)
-        basicfunction.leftClick(control_pos_tuple[INDEX_COMBO])
-        time.sleep(0.2)
-        basicfunction.leftClick(control_pos_tuple[INDEX_COMBO_OTHER])
+        time.sleep(6)
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_COMBO])
+        time.sleep(1)
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_COMBO_OTHER])
 
         #last name, first name, home 입력
-        time.sleep(1)
-        basicfunction.leftClick(control_pos_tuple[INDEX_LAST_NAME])
-        basicfunction.inputText('LASTNAME')
-        time.sleep(1)
-        basicfunction.leftClick(control_pos_tuple[INDEX_FIRST_NAME])
-        basicfunction.inputText('FIRSTNAME')
-        time.sleep(1)
-        basicfunction.leftClick(control_pos_tuple[INDEX_HOME])
-        basicfunction.inputText('1234')
+        time.sleep(2)
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_LAST_NAME])
+        keyAndMouse.inputText('LASTNAME')
+        time.sleep(0.5)
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_FIRST_NAME])
+        keyAndMouse.inputText('FIRSTNAME')
+        time.sleep(0.5)
+        keyAndMouse.leftClick(control_pos_tuple[INDEX_HOME])
+        keyAndMouse.inputText('1234')
 
         #save 버튼
         time.sleep(1)
-        basicfunction.inputKey('enter')
+        keyAndMouse.inputKey('enter')
 
         #f8 + enter + f8 + f8 + enter
+        time.sleep(1)
+        keyAndMouse.inputKey('F8')
         time.sleep(2)
-        basicfunction.inputKey('F8')
-        time.sleep(2)
-        basicfunction.inputKey('enter')
-        time.sleep(2)
-        basicfunction.inputKey('F8')
-        time.sleep(2)
-        basicfunction.inputKey('F8')
-        time.sleep(2)
-        basicfunction.inputKey('enter')
-        break
+        keyAndMouse.inputKey('enter')
+        time.sleep(1)
+        keyAndMouse.inputKey('F8')
+        time.sleep(1)
+        keyAndMouse.inputKey('F8')
+        time.sleep(1)
+        keyAndMouse.inputKey('enter')
+        time.sleep(8)
+        
+        #이름 입력
+        keyAndMouse.leftClick((-720, 492))
+        keyAndMouse.inputText('V')
+        keyAndMouse.inputKey('enter')
+        time.sleep( 7 )
+
+    print ("FINISH")
+
+

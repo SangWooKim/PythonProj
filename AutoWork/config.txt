@@ -1,7 +1,7 @@
 [AUTOPNR]
-col= P
-row =5
-file_path=D:\Github\PythonProj\AutoPNR\pnrData.xlsx
+col = E
+row = 7
+file_path=D:\Github\PythonProj\AutoWork\pnr4.xlsx
 
 [BUTTON_POS]
 input_box= -1135,100
