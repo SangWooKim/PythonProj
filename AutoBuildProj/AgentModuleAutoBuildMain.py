@@ -41,15 +41,14 @@ if __name__ == "__main__":
 
     if os.path.exists('.\config.txt'):
         config.read('.\config.txt')
-        config.set('AGENT', 'autobuild', '{0}\\3.0.{1}'.format(config.get('AGENT', 'autobuild'), curTime))
+        config.set('AGENT', 'autobuild', '{0}\\module.{1}'.format(config.get('AGENT', 'autobuild'), curTime))
 
     agent_proj_trunk = config.get('AGENT', 'proj_root')
     agent_autobuild = config.get('AGENT', 'autobuild')
     ftp_upload = config.get('AGENT', 'ftp_upload')
 
     # trunk에서 시작하는 경로는 변경 될 수 없다.
-    agent_module_source = '{0}\\nt\\modules\\windows'.format(agent_proj_trunk)
-    agent_module_project = '{0}\\nt\\modules\\projs'.format(agent_proj_trunk)
+    agent_module_source = '{0}\\nt\\modules'.format(agent_proj_trunk)
     agent_release_x86_root = '{0}\\nt\\Win32\\Release'.format(agent_proj_trunk)
     agent_release_x64_root = '{0}\\nt\\x64\\Release'.format(agent_proj_trunk)
     agent_installer_root = '{0}\\nt\\InstallShield'.format(agent_proj_trunk)
@@ -59,7 +58,7 @@ if __name__ == "__main__":
     curTime = basicfunction.getCurrentTime()
     
     #로컬에 저장된 svn 경로를 저장하고, revert 및 업데이트를 한다.
-    svnRepositoryList = [agent_module_source, agent_module_project]
+    svnRepositoryList = [agent_module_source]
     svnclient = SVNClientWrapper.SVNClient(svnRepositoryList)
 
     svnclient.svnRevert();
@@ -81,13 +80,14 @@ if __name__ == "__main__":
 
     targetPathList = ['modules']
 
+
     x86patchPath = '{0}\\patch\\AgentNT_x86'.format(agent_autobuild)
     x86installerPath = '{0}\\modules\\x86_release'.format(agent_installer_root)
-    basicfunction.copyUpdateModules(targetPathList, agent_release_x86_root, x86installerPath, x86patchPath)
+    basicfunction.agent_module_copy(targetPathList, agent_release_x86_root, x86patchPath)
 
     x64patchPath = '{0}\\patch\\AgentNT_x64'.format(agent_autobuild)
     x64installerPath = '{0}\\modules\\x64_release'.format(agent_installer_root)
-    basicfunction.copyUpdateModules(targetPathList, agent_release_x64_root, x64installerPath, x64patchPath)
+    basicfunction.agent_module_copy(targetPathList, agent_release_x64_root, x64patchPath)
 
     logger.info('ftp upload start')
 
@@ -114,9 +114,9 @@ if __name__ == "__main__":
                      ])
 
     # 배포 사이트 주소
-    ftp_ip = ftp_upload[ftp_upload.find('@') + 1:ftp_upload.rfind(':')]
+    #ftp_ip = ftp_upload[ftp_upload.find('@') + 1:ftp_upload.rfind(':')]
     ftp_path = ftp_upload[ftp_upload.find('/'):]
-    ftp_url = 'http://{0}:10003{1}/3.0.{2}'.format(ftp_ip, ftp_path, curTime)
+    ftp_url = 'http://123.212.42.21:10003{0}/3.0.{1}'.format(ftp_path, curTime)
 
     # slack noti
     logger.info('Slack notify')

@@ -3,6 +3,7 @@ from Lib import SVNClientWrapper
 from Lib import VSWrapper
 from Lib import BasicFunctions
 from Lib import InstallerWrapper
+import ftplib
 
 from slackclient import SlackClient
 
@@ -64,11 +65,19 @@ if __name__ == "__main__":
     ]
 
     AnycatcherBuildProject = [
-        '{0}\\MainFullVersion\\AnyCatcher.sln'.format(dof_workspaces_path), '/t:Rebuild /p:Configuration=Release_AnyCatcher'
+        ['{0}\\MainFullVersion\\AnyCatcher.sln'.format(dof_workspaces_path), '/t:Rebuild /p:Configuration=Release_AnyCatcher']
     ]
 
     BTVBuildProject = [
-        '{0}\\OpenManager\\Modules\\Custom\\BTV\\BTV_full.sln'.format(dof_source_root), '/t:Rebuild /p:Configuration=Release_BTV'
+        ['{0}\\OpenManager\\Modules\\Custom\\BTV\\BTV_full.sln'.format(dof_source_root), '/t:Rebuild /p:Configuration=Release_BTV']
+    ]
+
+    CTMSBuildProject = [
+        ['{0}\\MainFullVersion\\CTMS.sln'.format(dof_workspaces_path), '/t:Rebuild /p:Configuration=Release_CTMS']
+    ]
+
+    SKVOIPBuildProject = [
+        ['{0}\\MainFullVersion\\SKVOIP.sln'.format(dof_workspaces_path), '/t:Rebuild /p:Configuration=Release_SKVOIP']
     ]
 
     # 빌드 현재 시간을 얻는다.
@@ -79,8 +88,8 @@ if __name__ == "__main__":
     svnRepositoryList = [dof_source_root, dof_installer_root]
     svnclient = SVNClientWrapper.SVNClient(svnRepositoryList)
 
-    svnclient.svnRevert();
-    svnclient.svnUpdate();
+    svnclient.svnRevert()
+    svnclient.svnUpdate()
 
     #vs2008 객체 생성
     vsclient = VSWrapper.VisualStudio(VSWrapper.VisualStudionVerionEnum.VS2008, logdir, curTime)
@@ -116,12 +125,37 @@ if __name__ == "__main__":
     patchPath = '{0}\\patch\\BTVClient'.format(dof_autobuild)
 
     basicfunction.copyUpdateModules(targetPathList, dof_release_root + 'Btv', installerPath, patchPath)
+	
+	####################################################
+    #########  CTMS 처리하기
+    
+    vsclient.BuildProject(CTMSBuildProject)
 
-    # install shield porductversion update
+    installerPath = '{0}\\CustomSetupFile\\CTMS\\Common'.format(dof_installer_root)
+    patchPath = '{0}\\patch\\CTMSClient'.format(dof_autobuild)
+
+    basicfunction.copyUpdateModules(targetPathList, dof_release_root + 'CTMS', installerPath, patchPath)
+
+    ####################################################
+    #########  SKVOIP 처리하기
+
+    vsclient.BuildProject(SKVOIPBuildProject)
+
+    installerPath = '{0}\\CustomSetupFile\\SKVOIP\\Common'.format(dof_installer_root)
+    patchPath = '{0}\\patch\\SKVOIPClient'.format(dof_autobuild)
+
+    basicfunction.copyUpdateModules(targetPathList, dof_release_root + 'SKVOIP', installerPath, patchPath)
+
+    ###################################################################
+    ################ install shield product version update
 
     ismList = []
     ismList.append("{0}\\AnyCatcher.ism".format(dof_installer_root))
     ismList.append("{0}\\OpenManager 5.0_Lite.ism".format(dof_installer_root))
+    ismList.append("{0}\\CTMS.ism".format(dof_installer_root))
+    #ismList.append("{0}\\SKVOIP.ism".format(dof_installer_root))
+
+	
     installshield = InstallerWrapper.Installer( '5.0')
     installshield.versioninfoUpdate(ismList)
 
@@ -135,14 +169,13 @@ if __name__ == "__main__":
     # installer build
     workdir = '{0}\\autobuild\\{1}'.format(dof_proj_trunk, curTime)
 
-    del ismList[:]
-    omc_arg = [workdir, 'OpenManager 5.0_Lite.ism', 'Release_Common']
-    any_arg = [workdir, 'OpenManager 5.0_Lite.ism', 'Release_BTV']
-    btv_arg = [workdir, 'AnyCatcher.ism', 'Release_AnyCatcher']
+    del ismList[:]    
 
-    ismList.append(['-p', '{0}\\OpenManager 5.0_Lite.ism'.format(workdir),      '-r', 'Release_Common',         '-c', 'COMP', '-a', 'Media'])
-    ismList.append(['-p', '{0}\\OpenManager 5.0_Lite.ism'.format(workdir),      '-r', 'Release_BTV',            '-c', 'COMP', '-a', 'Media'])
-    ismList.append(['-p', '{0}\\AnyCatcher.ism'.format(workdir),                  '-r', 'Release_AnyCatcher',   '-c', 'COMP', '-a', 'Media'])
+    ismList.append(['-p', '{0}\\OpenManager 5.0_Lite.ism'.format(workdir), '-r', 'Release_Common',      '-c', 'COMP', '-a', 'Media'])
+    ismList.append(['-p', '{0}\\OpenManager 5.0_Lite.ism'.format(workdir), '-r', 'Release_BTV',         '-c', 'COMP', '-a', 'Media'])
+    ismList.append(['-p', '{0}\\OpenManager 5.0_Lite.ism'.format(workdir), '-r', 'Release_VOIP',        '-c', 'COMP', '-a', 'Media'])
+    ismList.append(['-p', '{0}\\AnyCatcher.ism'.format(workdir),             '-r', 'Release_AnyCatcher', '-c', 'COMP', '-a', 'Media'])
+    ismList.append(['-p', '{0}\\CTMS.ism'.format(workdir),                    '-r', 'Release_CTMS',        '-c', 'COMP', '-a', 'Media'])
     installshield.buildISM(ismList)
 
     if not os.path.exists(dof_autobuild):
@@ -154,6 +187,10 @@ if __name__ == "__main__":
                     '{0}\\OMC_5.0.{1}.exe'.format(dof_autobuild, curTime))
     shutil.copyfile('{0}\\ReleaseInstaller\\OMCBtv_5.0.exe'.format(workdir),
                     '{0}\\OMCBtv_5.0.{1}.exe'.format(dof_autobuild, curTime))
+    shutil.copyfile('{0}\\ReleaseInstaller\\OMCCTMS_5.0.exe'.format(workdir),
+                    '{0}\\CTMS_5.0.{1}.exe'.format(dof_autobuild, curTime))
+    shutil.copyfile('{0}\\ReleaseInstaller\\OMC_SKVOIP_5.0.exe'.format(workdir),
+                    '{0}\\SKVOIP_5.0.{1}.exe'.format(dof_autobuild, curTime))
 
     svnclient.dumpCommitlog(dof_proj_trunk, '{0}/autobuild_dof_commit_dump{1}.txt'.format(logdir, curTime))
     logger.info('ftp upload start')
@@ -181,9 +218,9 @@ if __name__ == "__main__":
                      ])
 
     # 배포 사이트 주소
-    ftp_ip = ftp_upload[ftp_upload.find('@') + 1:ftp_upload.rfind(':')]
+    #ftp_ip = ftp_upload[ftp_upload.find('@') + 1:ftp_upload.rfind(':')]
     ftp_path = ftp_upload[ftp_upload.find('/'):]
-    ftp_url = 'http://{0}:10003{1}/5.0.{2}'.format(ftp_ip, ftp_path, curTime)
+    ftp_url = 'http://123.212.42.21:10003{0}/5.0.{1}'.format(ftp_path, curTime)
 
     # slack noti
     logger.info('Slack notify')

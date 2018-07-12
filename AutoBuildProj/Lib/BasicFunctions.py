@@ -75,8 +75,8 @@ class BasicFunctions(object):
 
         self.mylogger.info('COPY MODULE  FINISH')
         return
-'''
-    def copyUpdateModules(self, targetPathList, releasePath,  patchPath):
+
+    def agent_module_copy(self, targetPathList, releasePath,  patchPath):
         self.mylogger.info('COPY MODULE from [{0}] to [{1}]'.format(releasePath, patchPath))
         for target in targetPathList:
             sourceFileList = self.getfilenames('{0}\\{1}'.format(releasePath, target))
@@ -94,4 +94,3 @@ class BasicFunctions(object):
 
         self.mylogger.info('COPY MODULE  FINISH')
         return
-'''

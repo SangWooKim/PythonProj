@@ -46,7 +46,7 @@ class SVNClient(object):
 
     def getCommitLog(self, repository, revision):
         proc = subprocess.Popen(['svn', 'log', '-r', revision, repository], stdout=subprocess.PIPE)
-        commitlog = str(proc.stdout.read(), 'euc-kr')
+        commitlog = str(proc.stdout.read(), 'cp949')
         return commitlog
 
     def dumpCommitlog(self, repository, commitfile):

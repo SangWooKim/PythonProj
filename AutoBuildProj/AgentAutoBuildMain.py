@@ -48,17 +48,16 @@ if __name__ == "__main__":
 
     # trunk에서 시작하는 경로는 변경 될 수 없다.
     agent_installer_root = '{0}\\nt\\InstallShield'.format(agent_proj_trunk)
-    agent_source_root = '{0}\\unix\\lib'.format(agent_proj_trunk)
     agent_release_x86_root = '{0}\\nt\\Win32\\Release'.format(agent_proj_trunk)
     agent_release_x64_root = '{0}\\nt\\x64\\Release'.format(agent_proj_trunk)
 
     #빌드 현재 시간을 얻는다.
     basicfunction = BasicFunctions.BasicFunctions()
-    #curTime = basicfunction.getCurrentTime()
-    curTime = '20170720_1530'
+    curTime = basicfunction.getCurrentTime()
+    #curTime = '20170720_1530'
     
     #로컬에 저장된 svn 경로를 저장하고, revert 및 업데이트를 한다.
-    svnRepositoryList = [agent_source_root, agent_installer_root]
+    svnRepositoryList = [agent_proj_trunk]
     svnclient = SVNClientWrapper.SVNClient(svnRepositoryList)
 
     svnclient.svnRevert();
@@ -84,7 +83,7 @@ if __name__ == "__main__":
         , ['{0}\\nt\\WindowUI\\NGFAgent\\NGFAgent.sln'.format(agent_proj_trunk), '/t:Rebuild /p:Configuration=Release_Swdiscovery /p:Platform=x64']
     ]
 
-    #vsclient.BuildProject(OMAgentFullBuild)
+    vsclient.BuildProject(OMAgentFullBuild)
 
     targetPathList = ['core', 'bin_swad', 'bin_common', 'bin_anycatcher']
 
@@ -163,9 +162,9 @@ if __name__ == "__main__":
                      ])
 
     # 배포 사이트 주소
-    ftp_ip = ftp_upload[ftp_upload.find('@') + 1:ftp_upload.rfind(':')]
+    #ftp_ip = ftp_upload[ftp_upload.find('@') + 1:ftp_upload.rfind(':')]
     ftp_path = ftp_upload[ftp_upload.find('/'):]
-    ftp_url = 'http://{0}:10003{1}/3.0.{2}'.format(ftp_ip, ftp_path, curTime)
+    ftp_url = 'http://123.212.42.21:10003{0}/3.0.{1}'.format(ftp_path, curTime)
 
     # slack noti
     logger.info('Slack notify')
